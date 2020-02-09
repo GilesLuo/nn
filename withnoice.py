@@ -68,7 +68,7 @@ def train(x, y, num_hidden, lr=0.6, max_epoch=10000):
 if __name__ == '__main__':
     # generate training data
     x = torch.unsqueeze(torch.linspace(-1, 1, 100), dim=1)
-    y = 1.2 * torch.sin(math.pi * x) - torch.cos(2.4 * math.pi * x)
+    y = 1.2 * torch.sin(math.pi * (x + 0.05 * np.random.randn(1))) - torch.cos(2.4 * math.pi * (x + 0.05 * np.random.randn(1)))
     if torch.cuda.is_available():
         x, y = x.cuda(), y.cuda()
     x, y = Variable(x), Variable(y)
