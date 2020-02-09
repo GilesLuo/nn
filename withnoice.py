@@ -9,7 +9,10 @@ import random
 import math
 import matplotlib.pyplot as plt
 import imageio
+import os
 
+if not os.path.isdir('./with_noise'):
+    os.mkdir('./with_noise')
 if torch.cuda.is_available():
     device = torch.device("cuda:0")
 
@@ -68,7 +71,8 @@ def train(x, y, num_hidden, lr=0.6, max_epoch=10000):
 if __name__ == '__main__':
     # generate training data
     x = torch.unsqueeze(torch.linspace(-1, 1, 100), dim=1)
-    y = 1.2 * torch.sin(math.pi * (x + 0.05 * np.random.randn(1))) - torch.cos(2.4 * math.pi * (x + 0.05 * np.random.randn(1)))
+    y = 1.2 * torch.sin(math.pi * (x + 0.05 * np.random.randn(1))) - torch.cos(
+        2.4 * math.pi * (x + 0.05 * np.random.randn(1)))
     if torch.cuda.is_available():
         x, y = x.cuda(), y.cuda()
     x, y = Variable(x), Variable(y)
@@ -84,11 +88,12 @@ if __name__ == '__main__':
     for i in range(len(hidden_list)):
         loss, t, frames = train(x, y, hidden_list[i], lr=0.05, max_epoch=10000)
         print(loss)
-        imageio.mimwrite('lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.gif', frames, duration=0.02)
+        imageio.mimwrite('./with_noise/lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.gif', frames,
+                         duration=0.02)
         # loss = np.array(loss)
         plt.title('lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t))
         plt.xlabel('num_epoch')
         plt.ylabel('loss value')
         plt.plot(range(len(loss)), loss)
-        plt.savefig('lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.png')
+        plt.savefig('./with_noise/lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.png')
         plt.close()
