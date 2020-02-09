@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib
+import xlwt
 from tqdm import tqdm
 import torch
 from torch.autograd import Variable
@@ -24,7 +25,7 @@ class SingleLayer(torch.nn.Module):
         return out
 
 
-def train(x, y, num_hidden, lr=0.6, max_epoch=100000):
+def train(x, y, num_hidden, lr=0.6, max_epoch=10000):
     frames = []
     loss_history = []
     net = SingleLayer(1, num_hidden, 1)
@@ -38,7 +39,7 @@ def train(x, y, num_hidden, lr=0.6, max_epoch=100000):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        loss_history.append(loss.data.float())
+        loss_history.append(loss.item())
 
         if t % 5 == 0:
             # plot and show learning process
@@ -68,15 +69,18 @@ if __name__ == '__main__':
     x = x[index]
     y = y[index]
 
-    loss, t, frames = train(x, y, 1, lr=0.05)
-    imageio.mimwrite('lr=0.5_hidden=1_epoch=' + str(t) + '.gif', frames)
-    loss, t, frames = train(x, y, 2, lr=0.05)
-    imageio.mimwrite('lr=0.5_hidden=2_epoch=' + str(t) + '.gif', frames)
-    loss, t, frames = train(x, y, 5, lr=0.05)
-    imageio.mimwrite('lr=0.5_hidden=5_epoch=' + str(t) + '.gif', frames)
-    loss, t, frames = train(x, y, 10, lr=0.05)
-    imageio.mimwrite('lr=0.5_hidden=1_epoch=' + str(t) + '.gif', frames)
-    loss, t, frames = train(x, y, 20, lr=0.05)
-    imageio.mimwrite('lr=0.5_hidden=1_epoch=' + str(t) + '.gif', frames)
-    loss, t, frames = train(x, y, 50, lr=0.05)
-    imageio.mimwrite('lr=0.5_hidden=1_epoch=' + str(t) + '.gif', frames)
+    hidden_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50]
+    f = xlwt.Workbook()  # 创建工作簿
+    sheet_1 = f.add_sheet(u'sheet1', cell_overwrite_ok=True)  # 创建sheet
+    for i in range(len(hidden_list)):
+        loss, t, frames = train(x, y, hidden_list[i], lr=0.05, max_epoch=20000)
+        print(loss)
+        imageio.mimwrite('lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.gif', frames, duration=0.02)
+        # loss = np.array(loss)
+        plt.title('lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t))
+        plt.xlabel('num_epoch')
+        plt.ylabel('loss value')
+        plt.plot(range(len(loss)), loss)
+        plt.savefig('lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.png')
+        plt.close()
+
