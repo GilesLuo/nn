@@ -32,7 +32,7 @@ def train(x, y, num_hidden, lr=0.6, max_epoch=10000):
     optimizer = torch.optim.SGD(net.parameters(), lr=lr)
     loss_func = torch.nn.MSELoss()
     figure = matplotlib.pyplot.figure()
-
+    last_loss = 0
     for t in tqdm(range(max_epoch)):
         prediction = net(x)
         loss = loss_func(prediction, y)
@@ -41,18 +41,22 @@ def train(x, y, num_hidden, lr=0.6, max_epoch=10000):
         optimizer.step()
         loss_history.append(loss.item())
 
-        if t % 5 == 0:
+        if t % 40 == 0:
             # plot and show learning process
 
             plt.cla()
             plt.scatter(x.data.numpy(), y.data.numpy())
             plt.scatter(x.data.numpy(), prediction.data.numpy())
             plt.text(0.5, 0, 'Loss=%.4f' % loss.data.numpy(), fontdict={'size': 20, 'color': 'red'})
+            plt.text(0.5, -0.5, 'Epoch=%.4f' % t, fontdict={'size': 20, 'color': 'red'})
             plt.pause(0.1)
             frames.append(np.array(figure.canvas.renderer.buffer_rgba()))
-        if loss.data.float() < 0.001:
+        if loss.data.float() < 0.001 or abs(last_loss - loss.item()) < 0.0000001:
             plt.close(figure)
             return loss_history, t, frames
+        else:
+            last_loss = loss.item()
+
     print('training timeout')
     plt.close(figure)
     return loss_history, t, frames
@@ -73,7 +77,7 @@ if __name__ == '__main__':
     f = xlwt.Workbook()  # 创建工作簿
     sheet_1 = f.add_sheet(u'sheet1', cell_overwrite_ok=True)  # 创建sheet
     for i in range(len(hidden_list)):
-        loss, t, frames = train(x, y, hidden_list[i], lr=0.05, max_epoch=20000)
+        loss, t, frames = train(x, y, hidden_list[i], lr=0.05, max_epoch=10000)
         print(loss)
         imageio.mimwrite('lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.gif', frames, duration=0.02)
         # loss = np.array(loss)
@@ -83,4 +87,3 @@ if __name__ == '__main__':
         plt.plot(range(len(loss)), loss)
         plt.savefig('lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.png')
         plt.close()
-
