@@ -3,7 +3,7 @@ import matplotlib
 import xlwt
 from tqdm import tqdm
 import torch
-import datagenerator
+import Q2.datagenerator
 import math
 import matplotlib.pyplot as plt
 import imageio
@@ -44,11 +44,11 @@ def train(x_list, y_list, num_hidden, lr=0.6, max_epoch=10000, batch_size=1):
     frames = []
     loss_history = []
 
-    train_dataset = datagenerator.ReadDataSource(x_list, y_list)
-    train_loader = datagenerator.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=False)
+    train_dataset = Q2.datagenerator.ReadDataSource(x_list, y_list)
+    train_loader = Q2.datagenerator.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=False)
     batch_iterator = iter(train_loader)
 
-    net = BatchSingleLayer(batch_size, num_hidden, batch_size)
+    net = BatchSingleLayer(1, num_hidden, 1)
 
     optimizer = torch.optim.SGD(net.parameters(), lr=lr)
     loss_func = torch.nn.MSELoss()
@@ -59,7 +59,8 @@ def train(x_list, y_list, num_hidden, lr=0.6, max_epoch=10000, batch_size=1):
         p_plot = []
         for step, (x, y) in enumerate(train_loader):
             x, y = Variable(x), Variable(y)
-            # y = y.squeeze()
+            x = x.unsqueeze(1)
+
             prediction = net(x)
             prediction = prediction.squeeze()
 
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     f = xlwt.Workbook()  # 创建工作簿
     sheet_1 = f.add_sheet(u'sheet1', cell_overwrite_ok=True)  # 创建sheet
     for i in range(len(hidden_list)):
-        loss, t, frames = train(x_list, y_list, hidden_list[i], lr=0.05, max_epoch=16000, batch_size=4)
+        loss, t, frames = train(x_list, y_list, hidden_list[i], lr=0.05, max_epoch=1000, batch_size=4)
 
         imageio.mimwrite('lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.gif', frames, duration=0.02)
 
