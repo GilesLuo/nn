@@ -4,17 +4,45 @@ import torch.nn.functional as F
 
 
 class MLP(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, n_features):
         super(MLP, self).__init__()
-
-        self.h1 = nn.Linear(128*128, 256)
-        self.h2 = nn.Linear(256, 64)
-        self.h3 = nn.Linear(64, 8)
-        self.o = nn.Linear(8, 1)
+        self.dense = nn.Sequential(
+            nn.Linear(n_features, 256),
+            nn.Dropout(0.5),
+            nn.Sigmoid(),
+            nn.Linear(256, 128),
+            nn.Dropout(0.5),
+            nn.Sigmoid(),
+            nn.Linear(128, 64),
+            nn.Dropout(0.5),
+            nn.Sigmoid(),
+            nn.Linear(64, 32),
+            nn.Dropout(0.5),
+            nn.Sigmoid(),
+            nn.Linear(32, 1),
+            nn.Dropout(0.5),
+            nn.Sigmoid(),
+        )
 
     def forward(self, x):
-        h1 = torch.sigmoid((self.h1(x)))
-        h2 = torch.sigmoid(self.h2(h1))
-        h3 = torch.sigmoid(self.h3(h2))
-        o = torch.sigmoid(self.o(h3))
+        o = self.dense(x)
+        return o
+
+
+class MLP2(torch.nn.Module):
+    def __init__(self, n_features):
+        super(MLP2, self).__init__()
+        self.dense = nn.Sequential(
+            nn.Linear(n_features, 256),
+            # nn.Dropout(0.5),
+            nn.Sigmoid(),
+            nn.Linear(256, 32),
+            # nn.Dropout(0.5),
+            nn.Sigmoid(),
+            nn.Linear(32, 1),
+            nn.Sigmoid(),
+        )
+
+    def forward(self, x):
+        o = self.dense(x)
         return o
