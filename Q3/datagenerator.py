@@ -9,10 +9,11 @@ from torch.utils.data import DataLoader
 # to import PIL, please make sure your PILLOW is pinned at version 6.2.1!!!
 
 class ReadDataSource(Dataset):
-    def __init__(self, x_dir, img_size):
+    def __init__(self, x_dir, img_size, two_output=False):
         self.x_dir = x_dir  # folder '/joints_val_img', '/joints_test_img' or '/joints_train_img'
         self.img_size = img_size
         self.file_list = os.listdir(x_dir)  # return a list of file names
+        self.two_output = two_output
 
     def __len__(self):
         return len(self.file_list)
@@ -30,8 +31,11 @@ class ReadDataSource(Dataset):
         ])(img)
         x[:, :] = img
         x = x.squeeze()
-        y = float(x_loc.split('_')[1])
-        # y = torch.tensor(y)
+        if not self.two_output:
+            y = float(x_loc.split('_')[1])
+        else:
+            y = [float(x_loc.split('_')[1]), 1 - float(x_loc.split('_')[1])]
+        y = torch.tensor(y)
         return x, y
 
 

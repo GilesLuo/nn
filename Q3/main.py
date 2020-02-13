@@ -13,16 +13,16 @@ else:
     print('available gpu not found, use cpu instead')
 
 
-def train(num_epoch=1, batch_size=1, lr=0.001, img_size=256):
+def train(num_epoch=1, batch_size=1, lr=0.001, img_size=256, is_two_output=False):
     tr_dir = './group_4/train/'
-    tr_data = ReadDataSource(tr_dir, img_size)
+    tr_data = ReadDataSource(tr_dir, img_size, two_output=is_two_output)
     tr_loader = DataLoader(dataset=tr_data, batch_size=batch_size, shuffle=True, drop_last=True)
 
     val_dir = './group_4/val/'
-    val_data = ReadDataSource(val_dir, img_size)
+    val_data = ReadDataSource(val_dir, img_size, two_output=is_two_output)
     val_loader = DataLoader(dataset=val_data, batch_size=1, shuffle=True, drop_last=True)
 
-    model = Q3.model.MLP2(img_size * img_size)
+    model = Q3.model.Perceptron(img_size * img_size, two_output=is_two_output)
     if torch.cuda.is_available():
         model = model.cuda()
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)
@@ -46,16 +46,19 @@ def train(num_epoch=1, batch_size=1, lr=0.001, img_size=256):
                 x, y = x.cuda(), y.cuda()
             y = y.unsqueeze(1)
             prediction = model(x)
-            # print(prediction.shape)
-            # print(y.shape)
+
             loss = loss_func(prediction, y.float())
 
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             avg_training_loss += loss.item()
+
             pre_class = torch.gt(prediction, 0.5)
-            wrong = float(torch.sum(y.float() - pre_class.float()))
+
+            wrong = abs(float(torch.sum(y.float() - pre_class.float())))
+            # wrong classification number in a batch
+
             wrong_clas1 += wrong
         train_accuracy = round(100 * (1 - wrong_clas1 / (count + 1) / batch_size), 4)
         avg_training_loss = avg_training_loss / (count + 1)
@@ -71,14 +74,22 @@ def train(num_epoch=1, batch_size=1, lr=0.001, img_size=256):
                 x, y = Variable(x), Variable(y)
                 if torch.cuda.is_available():
                     x, y = x.cuda(), y.cuda()
+                y = y.unsqueeze(1)
                 prediction = model(x)
-                prediction = torch.gt(prediction, 0.5)
-                loss = loss_func(prediction.float(), y.float())
-                wrong_clas2 += abs(loss.item())
+
+                pre_class = torch.gt(prediction, 0.5)
+
+                wrong = abs(float(torch.sum(y.float() - pre_class.float())))
+                # wrong classification number in a batch
+                wrong_clas2 += wrong
             val_accuracy = round(100 * (1 - wrong_clas2 / (count + 1)), 4)
             val_accuracy_history.append(val_accuracy)
-            print('val accuracy: ' + str(val_accuracy) + '%')
+            print('val accuracy: ' + str(val_accuracy) + '%: '
+                  + str(int(count + 1 - wrong_clas2)) + '/' + str(count + 1))
+    return train_accuracy_history, val_accuracy_history, loss_history
 
 
 if __name__ == '__main__':
-    train(num_epoch=100, batch_size=4, lr=0.005, img_size=128)
+    for i in range(len([256, 128, 64, 32])):
+        tr_ac, val_ac, loss = train(num_epoch=50, batch_size=4, lr=0.005, img_size=[256, 128, 64, 32][i])
+        print(max(val_ac))
