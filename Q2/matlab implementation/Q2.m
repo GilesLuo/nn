@@ -23,8 +23,8 @@ net.divideFcn = 'dividetrain';
 %% sequential model
 % 
 for j=1:1000
-    [net, tr] = adapt(net,x_cell, y_cell);
-    pred = net(x);
+    net = adapt(net,x_cell, y_cell);
+%     pred = net(x);
 %     loss = sum(abs(pred-y).^2);
 %     disp([j,loss]);
 %     if loss<0.001

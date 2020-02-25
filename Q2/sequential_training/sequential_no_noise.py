@@ -34,7 +34,7 @@ def train(x_full, y_full, x, y, num_hidden, lr=0.6, max_epoch=10000,
     net = SingleLayer(1, num_hidden, 1)
     if torch.cuda.is_available():
         net = torch.nn.DataParallel(net, device_ids=[0]).cuda()
-    optimizer = torch.optim.Adam(net.parameters(), lr=lr)
+    optimizer = torch.optim.SGD(net.parameters(), lr=lr)
     loss_func = torch.nn.L1Loss()
     figure = matplotlib.pyplot.figure()
     last_loss = 0
@@ -46,17 +46,17 @@ def train(x_full, y_full, x, y, num_hidden, lr=0.6, max_epoch=10000,
         optimizer.step()
         loss_history.append(loss.item())
         if show_training:
-            if t % 60 == 0:
+            if t % 30 == 0:
                 # plot and show learning process
                 pre = net(x_full)
                 plt.cla()
                 plt.scatter(x_full.data.numpy(), y_full.data.numpy())
                 plt.plot(x_full.data.numpy(), pre.data.numpy(), 'r')
                 plt.text(0.5, 0, 'Loss=%.4f' % loss.data.numpy(), fontdict={'size': 20, 'color': 'red'})
-                plt.text(0.5, -0.5, 'Epoch=%.4f' % t, fontdict={'size': 20, 'color': 'red'})
+                plt.text(0.5, -0.5, 'Epoch=%i' % t, fontdict={'size': 20, 'color': 'red'})
                 plt.pause(0.1)
-            if write_GIF:
-                frames.append(np.array(figure.canvas.renderer.buffer_rgba()))
+                if write_GIF:
+                    frames.append(np.array(figure.canvas.renderer.buffer_rgba()))
         if loss.data.float() < 0.00001:
             if write_plot:
                 plt.savefig(file_name + '/regression_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.png')
@@ -78,17 +78,17 @@ if __name__ == '__main__':
     # generate training data
     x = torch.unsqueeze(torch.linspace(-1, 1, 41), dim=1)
     y = 1.2 * torch.sin(math.pi * x) - torch.cos(2.4 * math.pi * x)
-    x_full = torch.unsqueeze(torch.linspace(-3, 3, 241), dim=1)
+    x_full = torch.unsqueeze(torch.linspace(-3, 3, 1000), dim=1)
     y_full = 1.2 * torch.sin(math.pi * x_full) - torch.cos(2.4 * math.pi * x_full)
     if torch.cuda.is_available():
         x, y = x.cuda(), y.cuda()
     x, y = Variable(x), Variable(y)
 
-    hidden_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50]
+    hidden_list = [50]
     # hiddern_list means the number of hidden neurons in the network
     loss_list = []
     for i in range(len(hidden_list)):
-        loss, t, frames = train(x_full, y_full, x, y, hidden_list[i], lr=0.01, max_epoch=8000,
+        loss, t, frames = train(x_full, y_full, x, y, hidden_list[i], lr=0.01, max_epoch=28000,
                                 write_GIF=True, write_plot=True, show_training=True)
         loss_list.append(loss)
         imageio.mimwrite(file_name + '/hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.gif', frames,
