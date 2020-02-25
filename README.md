@@ -3,7 +3,7 @@ Author and coder : Giles Luo
 
 This repository is a suppliant resource of HW2 for NUS courses ME5404 Neural Network. It contains the complete version of source code with #some typical GIFs result.
 
-Training process is visualized by GIFs. An is example is shown here:
+Training process is visualized by GIFs. An example is shown here:
 
 ![image](https://github.com/GilesLuo/nn/blob/master/Q2/sequential_training/plot_no_noise/hidden%3D10_epoch%3D7999.gif)
 
