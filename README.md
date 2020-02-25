@@ -3,6 +3,12 @@ Author and coder : Giles Luo
 
 This repository is a suppliant resource of HW2 for NUS courses ME5404 Neural Network. It contains the complete version of source code with #some typical GIFs result.
 
+Training process is visualized by GIFs. An is example is shown here:
+
+![image](https://github.com/GilesLuo/nn/blob/master/Q2/sequential_training/plot_no_noise/hidden%3D10_epoch%3D7999.gif)
+
+The prediction output only fits x=[-1,1], because the network is trained on [-1,1], which intuitively verifies that NN only learn what is taught.
+
 # Environment and modules
 My souce code runs on:
     python 3.7.6
@@ -24,8 +30,4 @@ Q1 is solved using MATLAB, and Q2 Q3 are solved using Python.
 
 In Q2, in addition to solve given question, I assume that the training data are disturbed by unknown Gaussian noise. The training result is shown in 'plot_with_noise' folder. 
 
-Training process is visualized by GIFs. An is example is shown here:
 
-![image](https://github.com/GilesLuo/nn/blob/master/Q2/sequential_training/plot_no_noise/hidden%3D10_epoch%3D7999.gif)
-
-The prediction output only fits x=[-1,1], because the network is trained on [-1,1], which intuitively verifies that NN only learn what is taught.
