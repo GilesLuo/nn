@@ -90,6 +90,6 @@ def train(num_epoch=1, batch_size=1, lr=0.001, img_size=256, is_two_output=False
 
 
 if __name__ == '__main__':
-    for i in range(len([256, 128, 64, 32])):
-        tr_ac, val_ac, loss = train(num_epoch=50, batch_size=4, lr=0.005, img_size=[256, 128, 64, 32][i])
+    for i in range(len([1, 4, 8, 16])):
+        tr_ac, val_ac, loss = train(num_epoch=50, batch_size=[1, 4, 8, 16][i], lr=0.005, img_size=128)
         print(max(val_ac))

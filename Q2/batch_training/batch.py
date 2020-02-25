@@ -3,7 +3,7 @@ import matplotlib
 import xlwt
 from tqdm import tqdm
 import torch
-import Q2.datagenerator
+import Q2.batch_training.datagenerator as datagenerator
 import math
 import matplotlib.pyplot as plt
 import imageio
@@ -44,13 +44,13 @@ def train(x_list, y_list, num_hidden, lr=0.6, max_epoch=10000, batch_size=1):
     frames = []
     loss_history = []
 
-    train_dataset = Q2.datagenerator.ReadDataSource(x_list, y_list)
-    train_loader = Q2.datagenerator.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=False)
+    train_dataset = datagenerator.ReadDataSource(x_list, y_list)
+    train_loader = datagenerator.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=False)
     batch_iterator = iter(train_loader)
 
     net = BatchSingleLayer(1, num_hidden, 1)
 
-    optimizer = torch.optim.SGD(net.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr)
     loss_func = torch.nn.MSELoss()
     figure = matplotlib.pyplot.figure()
 
@@ -72,7 +72,7 @@ def train(x_list, y_list, num_hidden, lr=0.6, max_epoch=10000, batch_size=1):
             x_plot.extend(x.data.tolist())
             p_plot.extend(prediction.data.tolist())
 
-        if epoch % 40 == 0:
+        if epoch % 10 == 0:
             # plot and show learning process
             plt.cla()
             plt.scatter(x_list, y_list)
@@ -95,15 +95,15 @@ def train(x_list, y_list, num_hidden, lr=0.6, max_epoch=10000, batch_size=1):
 
 if __name__ == '__main__':
     # generate training data
-    x_list = np.linspace(-1, 1, 100)
+    x_list = np.linspace(-1, 1, 41)
     y_list = [1.2 * math.sin(math.pi * x_list[i]) - math.cos(2.4 * math.pi * x_list[i])
               for i in range(len(x_list))]
 
-    hidden_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50]
+    hidden_list = [ 20, 50]
     f = xlwt.Workbook()  # 创建工作簿
     sheet_1 = f.add_sheet(u'sheet1', cell_overwrite_ok=True)  # 创建sheet
     for i in range(len(hidden_list)):
-        loss, t, frames = train(x_list, y_list, hidden_list[i], lr=0.05, max_epoch=1000, batch_size=4)
+        loss, t, frames = train(x_list, y_list, hidden_list[i], lr=0.01, max_epoch=2000, batch_size=len(x_list))
 
-        imageio.mimwrite('lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.gif', frames, duration=0.02)
+        imageio.mimwrite('lr=0.05_hidden=' + str(hidden_list[i]) + '_epoch=' + str(t) + '.gif', frames, duration=0.05)
 

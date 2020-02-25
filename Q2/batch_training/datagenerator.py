@@ -5,7 +5,7 @@ import numpy as np
 
 
 class ReadDataSource(Dataset):
-    def __init__(self, x, y, ):
+    def __init__(self, x, y):
         self.x_list = x
         self.y_list = y
 
