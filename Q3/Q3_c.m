@@ -1,4 +1,4 @@
-function [train_accuracy,val_accuracy]=Q3_c(img_size,num_neuron)
+function [tr_loss,val_loss]=Q3_c(img_size,num_neuron)
 %% read train file
 train_file = dir('./group_4/train/');
 train_file = train_file(3:end);
@@ -32,13 +32,16 @@ net = patternnet(num_neuron);
 % net.performFcn = 'mse';
 net.trainParam.epochs=10;
 net.divideFcn = 'divideind';
+net.trainParam.min_grad = 10e-20;
 net.divideParam.trainInd=1:size(train_file,1);
 net.divideParam.testInd=size(train_file,1)+1:size(train_file,1)+1+size(val_file,1);
 
-for i=1:40
+for i=1:600
     net = train(net,train_images,train_labels);
     y_tr = net(train_images);
     y_val = net(val_images);
+    tr_loss(i) = mean(train_labels-y_tr).^2;
+    val_loss(i) = mean(val_labels-y_val).^2;
     train_accuracy(i) = 1 - mean(abs(train_labels-y_tr));
     val_accuracy(i) = 1 - mean(abs(val_labels-y_val));
     if train_accuracy(i) ==1 && PCA==false

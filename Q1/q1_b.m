@@ -17,6 +17,7 @@ for epoch=1:1000
     w = w - inv(double(h)) * grad_w;
     flow(epoch,1)=w(1);
     flow(epoch,2)=w(2);
+    flow(epoch,3)=(w(1)-1)^2+100*(w(2)-w(1)^2)^2;
     if abs(w(1)-1)+abs(w(2)-1)<0.0001
         value = (w(1)-1)^2+100*(w(2)-w(1)^2)^2;
         break
@@ -24,4 +25,4 @@ for epoch=1:1000
     end
     disp(epoch);
 end
-plot(flow(1:epoch,1),flow(1:epoch,2));
+plot3(flow(1:epoch,1),flow(1:epoch,2), flow(1:epoch,3));

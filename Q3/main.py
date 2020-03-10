@@ -120,7 +120,7 @@ class write_excel:
 
 if __name__ == '__main__':
     writer = write_excel()
-    tr_ac, val_ac, loss = train(num_epoch=200, batch_size=8, lr=0.0001, img_size=256,
+    tr_ac, val_ac, loss = train(num_epoch=200, batch_size=32, lr=0.0005, img_size=256,
                                 decay_lr=0.9, PCA=False)
     print('max val accuracy is: ' + str(max(val_ac)))
     print('max train accuracy is: ' + str(max(tr_ac)))
